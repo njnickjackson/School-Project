@@ -5,14 +5,6 @@ pipeline {
     }
   }
   stages {
-    stage('Build') {
-      steps {
-        checkout scm
-        container('python') {
-          sh 'cargo build --release'
-        }
-      }
-    }
     stage('Copy Artifacts') {
       steps {
         container('python') {

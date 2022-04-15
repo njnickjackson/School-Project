@@ -1,40 +1,26 @@
 from flask import Flask
-from sqlalchemy import Table, create_engine, MetaData
-from sqlalchemy.future import engine
-from sqlalchemy.orm import mapper
+from flask_sqlalchemy import SQLAlchemy
+import json
 
 app = Flask(__name__)
 
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://@107.216.161.65/student_project"
+db = SQLAlchemy(app)
 
-class User(object):
 
-    def __init__(self, id=None, firstName=None, lastName=None, bday=None):
-        self.id = id
-        self.firstName = firstName
-        self.lastName = lastName
-        self.bday = bday
+class Users(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
 
     def __repr__(self):
-        return f'<User {self.firstName}:{self.lastName}>'
-
-
-metadata = MetaData(bind=engine)
-users = Table('users', metadata, autoload=True)
-mapper(User, users)
-
+        return '<User %r>' % self.username
 
 @app.route('/')
 def hello_world():
-    engine = create_engine(
-        "mysql+pymysql://:@107.216.161.65/student_project"
-    )
-    conn = engine.connect()
-    results = conn.execute(User, "select * from student_project.users")
-    print(results)
-    for u in results:
-        print(u)
-    return "Hello world"
-
+    for user in Users.query.all():
+        print(user)
+    return ""
 
 if __name__ == "__main__":
     from waitress import serve
